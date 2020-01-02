@@ -1,17 +1,14 @@
 import matplotlib.pyplot as plt
 import matplotlib.animation as animat
 import math
+import random
 from ParticleFunctions import *
 
 
-def animateit(p_array, i, fps): #function that creates list of locations with a fixed gap between them for a given collision
+
+def animateit(p_array,lp, i, fps): #function that creates list of locations with a fixed gap between them for a given collision
     for p in p_array: #for every particle in the simulation
-        dis = distance(p.locations[i+1][0], p.locations[i+1][1], p.locations[i][0], p.locations[i][0]) #the distance between this collision and the next one
-        va = math.sqrt((p.velocities[i][0]) ** 2 + (p.velocities[i][1]) ** 2) #the velocity in the same axis as the distance
-        if va == 0 or dis == 0: #if either of them is zero the function will error out; in that case f will be 1 and dx would be the entire space between the collision
-            time = 0.2
-        else:
-            time = abs(dis / va) #time is distance divided by velocity
+        time = lp.times[i] #time is distance divided by velocity
         f = fps * time #the number of frames to animate
         dx = (p.locations[i+1][0] - p.locations[i][0]) / f #the change in the x axis
         dy = (p.locations[i+1][1] - p.locations[i][1]) / f #the change in the y axis
@@ -65,3 +62,11 @@ def animation():
                          xlim=(-50, 50), ylim=(-50, 50))
     return fig
 
+def just_graph(p_array):
+    for p in p_array:
+        lx,ly = [], []
+        for i in range(len(p.locations)):
+            lx.append(p.locations[i][0])
+            ly.append(p.locations[i][1])
+        plt.plot(lx,ly,'-')
+# (random.randint(1,255),random.randint(1,255),random.randint(1,255)

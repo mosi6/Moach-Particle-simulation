@@ -1,4 +1,5 @@
 import math
+import numpy as np
 
 def distance(x1, y1, x2, y2):
     return ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
@@ -69,13 +70,36 @@ def change_velo_wall(p, Lx=100, Ly=100):
         p.vy = -p.vy
 
 
-def change_velo_disc(p1,p2,particles):  # need to change the i and j to the correct position in the t
-    h = math.sqrt(((p1.x - p2.x) ** 2) + ((p1.y - p2.y) ** 2))
-    sinA = abs(p2.y-p1.y)/h
-    cosA = abs(p2.x-p1.x)/h
-    delta_v = (cosA) * (p2.vx - p1.vx) - (sinA) * (p2.vy - p1.vy)
-    particles.velocity_change2(p1, p2, p1.vx + cosA * delta_v, p1.vy - sinA * delta_v, p2.vx - cosA * delta_v, p2.vy + sinA * delta_v)
-    #velo_x[p[0]] = velo_x[p[0]] + cosA * delta_v
-    #velo_x[p[1]] = velo_x[p[1]] - cosA * delta_v
-    #velo_y[p[0]] = velo_y[p[0]] - sinA * delta_v
-    #velo_y[p[1]] = velo_y[p[1]] + sinA * delta_v
+def change_velo_disc(p1, p2, particles):  # need to change the i and j to the correct position in the t
+    d = distance(p1.x, p1.y, p2.x, p2.y)
+    theta = math.asin((p2.y - p1.y) / d)
+    rot_M = np.array([[math.cos(theta), -math.sin(theta)], [math.sin(theta), math.cos(theta)]])
+    inv_rot_m = np.array([[math.cos(-theta), -math.sin(-theta)], [math.sin(-theta), math.cos(-theta)]])
+
+    v1 = np.array([p1.vx, p1.vy]).T
+    v2 = np.array([p2.vx, p2.vy]).T
+
+    v1_tag = np.dot(rot_M, v1)
+    v2_tag = np.dot(rot_M, v2)
+
+    u1_tag = np.array([v2_tag[0], v1_tag[1]]).T
+    u2_tag = np.array([v1_tag[0], v2_tag[1]]).T
+
+    u1 = np.dot(inv_rot_m, u1_tag)
+    u2 = np.dot(inv_rot_m, u2_tag)
+
+    particles.velocity_change2(p1, p2, u1[0], u1[1], u2[0], u2[1])
+
+
+
+
+
+#    h = math.sqrt(((p1.x - p2.x) ** 2) + ((p1.y - p2.y) ** 2))
+#    sinA = abs(p2.y-p1.y)/h
+#    cosA = abs(p2.x-p1.x)/h
+#    delta_v = (cosA) * (p2.vx - p1.vx) - (sinA) * (p2.vy - p1.vy)
+#    particles.velocity_change2(p1, p2, p1.vx + cosA * delta_v, p1.vy - sinA * delta_v, p2.vx - cosA * delta_v, p2.vy + sinA * delta_v)
+#    #velo_x[p[0]] = velo_x[p[0]] + cosA * delta_v
+#    #velo_x[p[1]] = velo_x[p[1]] - cosA * delta_v
+#    #velo_y[p[0]] = velo_y[p[0]] - sinA * delta_v
+#    #velo_y[p[1]] = velo_y[p[1]] + sinA * delta_v

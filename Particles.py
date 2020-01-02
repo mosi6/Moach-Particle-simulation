@@ -1,4 +1,6 @@
 import random
+from ParticleFunctions import *
+
 
 class Particle: #a particle class for each particle.
     def __init__(self, x, y, vx, vy): #initializes the particle with the location,the velocity, and an optional mass, default is 1.
@@ -12,12 +14,16 @@ class Particle: #a particle class for each particle.
 
 
 class Particle_Array: # a master class for all the particles.
-    def __init__(self, N, x_min, x_max, y_min, y_max, v_max): #initializes an array with N particles, within a given range, and a given max speed.
+    def __init__(self, N, x_min, x_max, y_min, y_max, vx_max, vy_max): #initializes an array with N particles, within a given range, and a given max speed.
         self.array = []
         self.times = []
         #appends the array N times with a random location within the range and a random velocity within the range
-        for _ in range(N):
-            self.array.append(Particle(random.randint(x_min, x_max), random.randint(y_min, y_max), random.randint(-v_max, v_max), random.randint(-v_max, v_max)))
+        while len(self.array) < N:
+            p1 = (random.uniform(x_min, x_max), random.uniform(y_min, y_max))
+            for p in self.array:
+                if distance(p1[0], p1[1], p.x, p.y) < 2:
+                    break
+            self.array.append(Particle(p1[0], p1[1], random.uniform(-vx_max, vx_max), random.uniform(-vy_max, vy_max)))
     def step(self, time):# steps each particle with its vlocity * the accepted time, which is the time until next collision
         for p in self.array:
             p.x += time * p.vx
